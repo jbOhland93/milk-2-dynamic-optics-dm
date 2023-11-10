@@ -6,7 +6,7 @@
 
 class DMUpdateLoop {
 public:
-    DMUpdateLoop(const char* image_name);
+    DMUpdateLoop(const char* image_name, const char* deviceIP);
     ~DMUpdateLoop();
 
     void run();

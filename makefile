@@ -8,7 +8,8 @@ CPPFLAGS := -g
 
 EXT_LIB_DIRS := -L${MILK_INSTALLDIR}/lib/
 #	-lImageStreamIO		- Interfacing with milk data streams
-LDFLAGS := $(EXT_LIB_DIRS) -lImageStreamIO
+#	-lPztMulti			- Interfacing with the Dynamic Optics DM
+LDFLAGS := $(EXT_LIB_DIRS) -lImageStreamIO -lPztMulti
 EXT_INC_DIRS := -I${MILK_INSTALLDIR}/include/ImageStreamIO/
 
 # =========================

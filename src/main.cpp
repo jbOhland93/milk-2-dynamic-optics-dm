@@ -22,8 +22,13 @@ void sigint_handler(int signo) {
 
 int main(int argc, char *argv[]) {
     // Check argument validity
-    if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " <image_name>" << std::endl;
+    if (argc < 3) {
+        std::cerr
+            << "Usage: "
+            << argv[0]
+            << " <image_name>"
+            << " <device_ip>"
+            << std::endl;
         return 1;
     }
     // Register signal handler for SIGINT
@@ -31,7 +36,7 @@ int main(int argc, char *argv[]) {
         std::cout << "Cannot catch SIGINT" << std::endl;
     }
 
-    loop = new DMUpdateLoop(argv[1]);
+    loop = new DMUpdateLoop(argv[1], argv[2]);
     loop->run();
 
     terminate();
