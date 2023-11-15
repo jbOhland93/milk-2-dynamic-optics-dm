@@ -24,11 +24,12 @@ DMController::~DMController()
     }
 }
 
-bool DMController::initialize(std::string deviceIP)
+bool DMController::initialize(AppSettings* p_appSettings)
 {
-    std::cout << "DMController: device ip: " << deviceIP << std::endl;
+    std::cout   << "DMController: device ip: "
+                << p_appSettings->getDMaddress() << std::endl;
     std::cout << "DMController: Creating PztMulti instance..." << std::endl; 
-    mp_driverInstance = createPztMultiInstance("192.168.0.1");
+    mp_driverInstance = createPztMultiInstance(p_appSettings->getDMaddress());
 
     std::cout << "DMController: Getting plugin info..." << std::endl; 
     passOrReturn(getInfo(mp_driverInstance, m_pluginInfo),
@@ -39,7 +40,8 @@ bool DMController::initialize(std::string deviceIP)
     std::cout << "\tType: " << m_pluginInfo.pluginType << std::endl;
 
     // Initialize the plugin settings
-    m_dmSettings.actuators = 32;    // Number of actuators
+    // Number of actuators
+    m_dmSettings.actuators = p_appSettings->getDmActuatorCount();
     m_dmSettings.center    = 0.0;   // Center position
     m_dmSettings.lower     = -1.0;  // Lower limit for the actuator position
     m_dmSettings.upper     = 1.0;   // Upper limit for the actuator position

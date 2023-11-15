@@ -3,9 +3,11 @@
 
 #include <ImageStruct.h>
 
+#include "AppSettings.h"
+
 class ImageStreamManager {
 public:
-    ImageStreamManager(const char* image_name);
+    ImageStreamManager(AppSettings* p_appSettings);
     ~ImageStreamManager();
 
     bool initialize();

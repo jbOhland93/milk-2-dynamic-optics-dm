@@ -1,13 +1,16 @@
 #ifndef DMCONTROLLER_H
 #define DMCONTROLLER_H
 
+#include "AppSettings.h"
+
+// DM library
 #include "PztMultiInterface.h"
 class DMController {
 public:
     DMController();
     ~DMController();
 
-    bool initialize(std::string deviceIP);
+    bool initialize(AppSettings* p_appSettings);
 
     bool checkDataSize(int size);
     bool setActuatorValues(double *values);

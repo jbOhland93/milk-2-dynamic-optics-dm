@@ -3,8 +3,8 @@
 #include <iostream>
 #include <unistd.h>
 
-ImageStreamManager::ImageStreamManager(const char* image_name)
-    : mImageName(image_name)
+ImageStreamManager::ImageStreamManager(AppSettings* p_appSettings)
+    : mImageName(p_appSettings->getISIOdmImName().c_str())
 {
     std::cout << "ImageStreamMamager: Image name: " << mImageName << std::endl;
 }
