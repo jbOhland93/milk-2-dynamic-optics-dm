@@ -18,6 +18,6 @@ https://github.com/milk-org/milk
 | ------ | ------ |
 | `make` | Builds the software. |
 | `make clean` | Deletes the build directory. |
-| `make run INSTREAM=<image-stream-name>` | Builds and executes the software after it has already been built. Shortcut for `./build/milk-2-dynamic-optics-dm <image-stream-name>` |
+| `make run SETTINGS_FILE=<dm-settings-file>` | Builds and executes the software after it has already been built. Shortcut for `./build/milk-2-dynamic-optics-dm <dm-settings-file>` |
 
 Close the program with Ctrl+C - the cleanup will be done automatically.

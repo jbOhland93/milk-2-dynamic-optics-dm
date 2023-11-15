@@ -63,12 +63,12 @@ clean:
 # Custom: Shortcut to run the application with or without input commands.
 run: build/$(TARGET_EXEC)
 	@(cd build; \
-	if [ -z "$(INSTREAM)" ]; then \
-		echo "\nEnter an input string using 'make run INSTREAM=<streamname>'.\n"; \
+	if [ -z "$(SETTINGS_FILE)" ]; then \
+		echo "\nEnter an input string using 'make run SETTINGS_FILE=<dm-settings-file>'.\n"; \
 		./$(TARGET_EXEC); \
 		EXIT_STATUS=$$?; \
 	else \
-		./$(TARGET_EXEC) $(INSTREAM); \
+		./$(TARGET_EXEC) $(SETTINGS_FILE); \
 		EXIT_STATUS=$$?; \
 	fi; \
 	if [ $$EXIT_STATUS -ne 0 ]; then \

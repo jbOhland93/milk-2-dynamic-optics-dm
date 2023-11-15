@@ -8,7 +8,7 @@
 
 class AppSettings {
 public:
-    AppSettings(const std::string& filepath = "../settings.txt");
+    AppSettings(const std::string& filepath = "../dm-settings-default");
 
     std::string getDMaddress() const { return m_dmAddress; }
     int getDmActuatorCount() const { return m_dmActuatorCount; }
@@ -19,7 +19,7 @@ public:
 private:
     std::string m_filepath;
     std::string m_dmAddress = "unset";
-    int m_dmActuatorCount = -1;
+    int m_dmActuatorCount = 0;
     std::string m_dmImName = "unset";
 };
 
