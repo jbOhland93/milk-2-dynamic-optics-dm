@@ -20,4 +20,4 @@ https://github.com/milk-org/milk
 | `make clean` | Deletes the build directory. |
 | `make run SETTINGS_FILE=<dm-settings-file>` | Builds and executes the software after it has already been built. Shortcut for `./build/milk-2-dynamic-optics-dm <dm-settings-file>` |
 
-Close the program with Ctrl+C - the cleanup will be done automatically.
+The configuration for this C++ program, including the IP of the DM, the input image stream, and other parameters, is specified through a text file. This file's path must be provided as an argument when running the executable. For reference, an example file (``dm-settings-default``) containing all possible settings is located at the top level of this repository.
