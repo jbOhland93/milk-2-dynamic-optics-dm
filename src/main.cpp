@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
     if (!p_DMC->initialize(p_appSettings))
     {
         cout << "Error initializing driver. Exiting programm." << endl;
-        //return 1;
+        return 1;
     }
 
     // Initialize Image Stream Handler
@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
             new ImageStreamManager() );
     if (!p_ISM->initialize(p_appSettings))
     {
-        cout << "Error initializing driver. Exiting programm." << endl;
+        cout << "Error initializing image manager. Exiting programm." << endl;
         return 1;
     }
     

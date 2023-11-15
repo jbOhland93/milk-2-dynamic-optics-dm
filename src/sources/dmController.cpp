@@ -15,13 +15,19 @@ DMController::~DMController()
     // Safely destroy the PztMulti instance and disconnect from the device
     if (mp_driverInstance != nullptr)
     {
+        closePztMulti(mp_driverInstance);
         destroyPztMultiInstance(mp_driverInstance);
         std::cout << "DMController: disconnected from DM!" << std::endl; 
+
+        delete[] mp_valBufferArr;
     }
 }
 
 bool DMController::initialize(AppSettings* p_appSettings)
 {
+    passOrReturn(mp_driverInstance != nullptr,
+        "DMController: already initialized.", false);
+
     std::cout   << "DMController: device ip: "
                 << p_appSettings->getDMaddress() << std::endl;
     std::cout << "DMController: Creating PztMulti instance..." << std::endl; 
@@ -41,6 +47,8 @@ bool DMController::initialize(AppSettings* p_appSettings)
     m_dmSettings.center    = 0.0;   // Center position
     m_dmSettings.lower     = -1.0;  // Lower limit for the actuator position
     m_dmSettings.upper     = 1.0;   // Upper limit for the actuator position
+
+    mp_valBufferArr = new double[m_dmSettings.actuators];
 
     // Attempt to open the PztMulti instance with the given settings
     std::cout << "DMController: opening PztMulti instance..." << std::endl; 
@@ -72,7 +80,25 @@ bool DMController::checkDataSize(int size)
 bool DMController::setActuatorValues(double *values)
 {
     forceInitialized("setActuatorValues(double*)");
+    // Poll the device to check if it is busy with the operation
+    while( isBusy(mp_driverInstance) ) {
+        // Wait for 5 microseconds before polling again
+        // Use busysleep to avoid the scheduler kicking in
+        auto end = std::chrono::steady_clock::now()
+                 + std::chrono::microseconds(5);
+        while(std::chrono::steady_clock::now() < end);
+    }
     return setValues(mp_driverInstance, values, m_dmSettings.actuators) == 0;
+}
+
+bool DMController::setActuatorValues(float *values)
+{
+    forceInitialized("setActuatorValues(float*)");
+
+    for (int i = 0; i < m_dmSettings.actuators; i++)
+        mp_valBufferArr[i] = (double) values[i];
+
+    return setActuatorValues(mp_valBufferArr);
 }
 
 bool DMController::relaxDM()
@@ -85,9 +111,8 @@ bool DMController::relaxDM()
 
     // Poll the device to check if it is busy with the operation
     while( isBusy(mp_driverInstance) ) {
-        std::cout << ".";
         // Wait for 100 milliseconds before polling again
-        std::this_thread::sleep_for(std::chrono::milliseconds(400));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     std::cout << std::endl
         << "DMController: relaxation routine complete." << std::endl; 

@@ -1,9 +1,18 @@
 #include "../headers/AppSettings.h"
 #include <iostream>
 
+#include <filesystem>
+
+#include <unistd.h>
+#include <limits>
+
 AppSettings::AppSettings(const std::string& filepath)
     : m_filepath(filepath)
  {
+    char buffer[256];
+    if (getcwd(buffer, sizeof(buffer)) != NULL)
+        std::cout << "Current Working Directory: " << buffer << std::endl;
+
     std::ifstream file(filepath);
     std::string line;
     while (std::getline(file, line)) {

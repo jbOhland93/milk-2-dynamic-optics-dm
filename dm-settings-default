@@ -1,0 +1,6 @@
+# This file is a dummy, demonstrating the accepted fields.
+# Please create your own file using an aorun script in cacao.
+
+DM-IPAddress=127.0.0.1
+actuatorCount=96
+DMcombStream=myDMstream

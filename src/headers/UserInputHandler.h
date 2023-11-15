@@ -12,7 +12,7 @@
 enum class userCmd{
 	CMD_HELP,
 	CMD_ARM,
-	CMD_UNARM,
+	CMD_DISARM,
 	CMD_RELAX,
 	CMD_QUIT
 };
@@ -33,8 +33,8 @@ class UserInputHandler
         void core();
 
     private:
-		const std::shared_ptr<DMController> mp_DMController;
-		const std::shared_ptr<ImageStreamManager> mp_ISManager;
+		const std::shared_ptr<DMController> mp_DMController = nullptr;
+		const std::shared_ptr<ImageStreamManager> mp_ISManager = nullptr;
 		bool m_running = true;
 		bool m_armed = false;
 		std::thread m_dmPollThread;
@@ -57,7 +57,7 @@ class UserInputHandler
 		// Prints a help list
 		void execCmdHelp();
 		// Activates/deactivates DM input from ISIO
-		void execCmdArmUnarm(bool arm);
+		void execCmdArmDisarm(bool arm);
 		// Starts the relax routine of the DM
 		void execCmdRelax();
 		

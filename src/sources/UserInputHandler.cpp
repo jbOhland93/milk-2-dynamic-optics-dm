@@ -9,7 +9,7 @@ using namespace std;
 vector<userCmd> UserInputHandler::cmdList = {
 	userCmd::CMD_HELP,
     userCmd::CMD_ARM,
-	userCmd::CMD_UNARM,
+	userCmd::CMD_DISARM,
     userCmd::CMD_RELAX,
 	userCmd::CMD_QUIT,
 };
@@ -17,7 +17,7 @@ vector<userCmd> UserInputHandler::cmdList = {
 map<string,userCmd> UserInputHandler::cmdStrings = {
 	{"help", userCmd::CMD_HELP},
     {"arm", userCmd::CMD_ARM},
-    {"unarm", userCmd::CMD_UNARM},
+    {"disarm", userCmd::CMD_DISARM},
     {"relax", userCmd::CMD_RELAX},
 	{"quit", userCmd::CMD_QUIT},
 };
@@ -25,7 +25,7 @@ map<string,userCmd> UserInputHandler::cmdStrings = {
 map<userCmd,string> UserInputHandler::cmdHelp = {
 	{userCmd::CMD_HELP, "Shows a list of available commands"},
     {userCmd::CMD_ARM, "Enables DM control via ISIO stream (default)"},
-    {userCmd::CMD_UNARM, "Disables DM control via ISIO stream"},
+    {userCmd::CMD_DISARM, "Disables DM control via ISIO stream"},
     {userCmd::CMD_RELAX, "Starts the DM relaxation routine"},
 	{userCmd::CMD_QUIT, "Quits the programm"},
 };
@@ -95,10 +95,10 @@ void UserInputHandler::handleInput(char* input)
 			execCmdHelp();
 			break;
         case userCmd::CMD_ARM:
-			execCmdArmUnarm(true);
+			execCmdArmDisarm(true);
 			break;
-        case userCmd::CMD_UNARM:
-			execCmdArmUnarm(false);
+        case userCmd::CMD_DISARM:
+			execCmdArmDisarm(false);
 			break;
         case userCmd::CMD_RELAX:
             execCmdRelax();
@@ -139,7 +139,7 @@ void UserInputHandler::execCmdHelp()
     clearResponseLine();
 }
 
-void UserInputHandler::execCmdArmUnarm(bool start)
+void UserInputHandler::execCmdArmDisarm(bool start)
 {
     clearResponseLine();
     if (start)
@@ -166,11 +166,11 @@ void UserInputHandler::execCmdArmUnarm(bool start)
         {
             m_armed = false;
             m_dmPollThread.join();
-            mvprintw(LINES-1, 0, "DM unarmed and idle.");
+            mvprintw(LINES-1, 0, "DM disarmed and idle.");
         }
         else
         {
-            addstr("DM is already unarmed, nothing to be done.");
+            addstr("DM is already disarmed, nothing to be done.");
         }
 }
 
@@ -178,11 +178,11 @@ void UserInputHandler::execCmdRelax()
 {
     clearResponseLine();
     if (m_armed)
-        mvprintw(LINES-1, 0, "DM is armed for ISIO control. Unarm before relaxing.");
+        mvprintw(LINES-1, 0, "DM is armed for ISIO control. Disarm before relaxing.");
     else
     {
         mvprintw(LINES-1, 0, "Relaxation routine running...");
-        // RELAX DM
+        mp_DMController->relaxDM();
         mvprintw(LINES-1, 0, "Relaxation routine finished!");
     }
 }
@@ -209,7 +209,8 @@ void UserInputHandler::ISIOtoDM()
 {
     while(m_armed)
     {
+        // Update DM if a new image is available in the next 100 ms.
         if (mp_ISManager->waitForNextImage(100000))
-            //mp_DMController->setActuatorValues();
+            mp_DMController->setActuatorValues(mp_ISManager->getData());
     }
 }
