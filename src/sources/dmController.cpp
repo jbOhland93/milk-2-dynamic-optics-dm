@@ -27,7 +27,7 @@ bool DMController::initialize(AppSettings* p_appSettings)
     std::cout << "DMController: Creating PztMulti instance..." << std::endl; 
     mp_driverInstance = createPztMultiInstance(p_appSettings->getDMaddress());
 
-    std::cout << "DMController: Getting plugin info..." << std::endl; 
+    std::cout << "DMController: getting plugin info..." << std::endl; 
     passOrReturn(getInfo(mp_driverInstance, m_pluginInfo),
         "DMController: failed to get plugin info.", false);
     std::cout << "\tName: " << m_pluginInfo.name << std::endl;
@@ -43,7 +43,7 @@ bool DMController::initialize(AppSettings* p_appSettings)
     m_dmSettings.upper     = 1.0;   // Upper limit for the actuator position
 
     // Attempt to open the PztMulti instance with the given settings
-    std::cout << "DMController: Opening PztMulti instance..." << std::endl; 
+    std::cout << "DMController: opening PztMulti instance..." << std::endl; 
     passOrReturn(openPztMulti(mp_driverInstance, m_dmSettings),
         "DMController: failed to open PztMulti instance.", false);
     
@@ -81,7 +81,7 @@ bool DMController::relaxDM()
 
     // Start the relaxation process
     relax(mp_driverInstance);
-    std::cout << "DMController: Relaxing DM...";
+    std::cout << "DMController: relaxing DM...";
 
     // Poll the device to check if it is busy with the operation
     while( isBusy(mp_driverInstance) ) {
@@ -90,7 +90,7 @@ bool DMController::relaxDM()
         std::this_thread::sleep_for(std::chrono::milliseconds(400));
     }
     std::cout << std::endl
-        << "DMController: Relaxation routine complete." << std::endl; 
+        << "DMController: relaxation routine complete." << std::endl; 
 
     return true;
 }
@@ -99,7 +99,7 @@ void DMController::forceInitialized(std::string actionName)
 {
     if(mp_driverInstance == nullptr)
     {
-        std::string msg("DMController: Action '");
+        std::string msg("DMController: action '");
         msg.append(actionName);
         msg.append("' not permitted on uninitialized driver.");
         throw std::runtime_error(msg);

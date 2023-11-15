@@ -40,17 +40,20 @@ UserInputHandler::UserInputHandler(
 
 void UserInputHandler::core()
 {
+    printf("== Initialization done! ==\n");
     initscr();
     wmove(stdscr, 0, 0);
     addstr("=== Welcome to the CLI of the milk-2-dynamic-optics-dm application. ===\n");
     addstr("\nEnter any string and hit enter to display the response.\n");
     addstr("Enter \"quit\" to exit the CLI.\n");
     addstr("Enter \"help\" for a list of comand options.\n\n");
-    mPrintareaStart = getcury(stdscr);
+    m_printareaStart = getcury(stdscr);
 
-    mvprintw(LINES-2,0,mPrompt);
+    mvprintw(LINES-2, 0, m_prompt);
 
-    while (mRunning) {
+    m_armed = true;
+    m_dmPollThread = std::thread(&UserInputHandler::ISIOtoDM, this);
+    while (m_running) {
         waitOnNextCmd();
 
         char str[1024];
@@ -58,13 +61,22 @@ void UserInputHandler::core()
 		handleInput(str);
     }
     endwin();
+
+    printf("== Quit programm. Start cleaning up ... ==\n");
+
+    // Stop DM polling, if active
+    if (m_armed)
+    {
+        m_armed = false;
+        m_dmPollThread.join();
+    }
 }
 
 void UserInputHandler::waitOnNextCmd()
 {
 	wmove(stdscr, LINES-2, 0);
 	clrtoeol();
-    addstr(mPrompt);
+    addstr(m_prompt);
 }
 
 void UserInputHandler::handleInput(char* input)
@@ -92,7 +104,7 @@ void UserInputHandler::handleInput(char* input)
             execCmdRelax();
             break;
 		case userCmd::CMD_QUIT:
-			mRunning = false;
+			m_running = false;
 			break;
 		default:
 			mvprintw(LINES-1, 0, "Command found but no switch case implemented: ");
@@ -105,7 +117,7 @@ void UserInputHandler::handleInput(char* input)
 void UserInputHandler::handleUnknownCmd(string cmd)
 {
     clearResponseLine();
-	addstr(mAnswerUnknown);
+	addstr(m_answerUnknown);
 	addstr(cmd.c_str());
 }
 
@@ -132,7 +144,7 @@ void UserInputHandler::execCmdArmUnarm(bool start)
     clearResponseLine();
     if (start)
     {
-        if (true)
+        if (m_armed)
             mvprintw(LINES-1, 0, "DM is already armed, nothing to be done.");
         else
         {
@@ -142,15 +154,18 @@ void UserInputHandler::execCmdArmUnarm(bool start)
             WINDOW* win = newwin(0,0,w,h);
             overwrite(stdscr, win);
 
-            // ARM DM
+            m_armed = true;
+            m_dmPollThread = std::thread(&UserInputHandler::ISIOtoDM, this);
+
             overwrite(win, stdscr);
             addstr("DM armed for ISIO input.");
         }
     }
     else
-        if (true)
+        if (m_armed)
         {
-            // UNARM DM
+            m_armed = false;
+            m_dmPollThread.join();
             mvprintw(LINES-1, 0, "DM unarmed and idle.");
         }
         else
@@ -162,7 +177,7 @@ void UserInputHandler::execCmdArmUnarm(bool start)
 void UserInputHandler::execCmdRelax()
 {
     clearResponseLine();
-    if (true)
+    if (m_armed)
         mvprintw(LINES-1, 0, "DM is armed for ISIO control. Unarm before relaxing.");
     else
     {
@@ -174,18 +189,27 @@ void UserInputHandler::execCmdRelax()
 
 void UserInputHandler::clearPrintArea()
 {
-    wmove(stdscr, mPrintareaStart, 0);
-    int curY = mPrintareaStart;
+    wmove(stdscr, m_printareaStart, 0);
+    int curY = m_printareaStart;
     while (curY < LINES-2) {
         clrtoeol();
         curY++;
         wmove(stdscr, curY, 0);
     }
-    wmove(stdscr, mPrintareaStart, 0);
+    wmove(stdscr, m_printareaStart, 0);
 }
 
 void UserInputHandler::clearResponseLine()
 {
     wmove(stdscr, LINES-1, 0);
     clrtoeol();
+}
+
+void UserInputHandler::ISIOtoDM()
+{
+    while(m_armed)
+    {
+        if (mp_ISManager->waitForNextImage(100000))
+            //mp_DMController->setActuatorValues();
+    }
 }

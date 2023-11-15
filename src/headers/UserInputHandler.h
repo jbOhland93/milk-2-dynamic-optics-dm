@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 #include <memory>
+#include <thread>
 #include "../headers/dmController.h"
 #include "../headers/ImageStreamManager.h"
 
@@ -34,11 +35,13 @@ class UserInputHandler
     private:
 		const std::shared_ptr<DMController> mp_DMController;
 		const std::shared_ptr<ImageStreamManager> mp_ISManager;
-		bool mRunning = true;
-		int mPrintareaStart;
-		const char * mPrompt = "Enter command: ";
-		const char * mAnswerUnknown = "Command not found: ";
-        std::string mCurrentCommand;
+		bool m_running = true;
+		bool m_armed = false;
+		std::thread m_dmPollThread;
+		int m_printareaStart;
+		const char * m_prompt = "Enter command: ";
+		const char * m_answerUnknown = "Command not found: ";
+        std::string m_currentCommand;
 
 		// Make default ctor private
 		UserInputHandler();
@@ -64,6 +67,8 @@ class UserInputHandler
 		// Clears the line below the user input prompt
 		void clearResponseLine();
 
+		// === DM update loop
+		void ISIOtoDM();
 };
 
 #endif // USERINPUTHANDLER_H

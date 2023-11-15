@@ -9,16 +9,16 @@ ImageStreamManager::~ImageStreamManager()
     {
         errno_t err = ImageStreamIO_closeIm(mp_image);
         if (err == 0)
-            std::cout << "ImageStreamMamager: Image closed successfully." << std::endl;
+            std::cout << "ImageStreamMamager: image closed successfully." << std::endl;
         else
-            std::cerr << "ImageStreamMamager: Error closing image: " << err << std::endl;
+            std::cerr << "ImageStreamMamager: error closing image: " << err << std::endl;
     }
 }
 
 bool ImageStreamManager::initialize(AppSettings* p_appSettings)
 {
     // Info for user
-    std::cout   << "ImageStreamMamager: Image name: "
+    std::cout   << "ImageStreamMamager: image name: "
                 << p_appSettings->getISIOdmImName() << std::endl;
 
     // Close image if it previously existed
@@ -37,14 +37,14 @@ bool ImageStreamManager::initialize(AppSettings* p_appSettings)
             && mp_image->md->datatype == _DATATYPE_FLOAT)
         {
             std::cout
-                << "ImageStreamMamager: Image successfully opened."
+                << "ImageStreamMamager: image successfully opened."
                 << std::endl;
             return true;
         }
         else
         {
             std::cout
-                << "ImageStreamMamager: Image opened, but has wrong dimension, size or datatype."
+                << "ImageStreamMamager: image opened, but has wrong dimension, size or datatype."
                 << std::endl;
             return false;
         }
@@ -52,7 +52,7 @@ bool ImageStreamManager::initialize(AppSettings* p_appSettings)
     else
     {
         std::cout
-                << "ImageStreamMamager: Failed to open image. "
+                << "ImageStreamMamager: failed to open image. "
                 << "Creating new image."
                 << std::endl;
         int naxis = 1;
@@ -77,7 +77,7 @@ bool ImageStreamManager::initialize(AppSettings* p_appSettings)
         if (ret != IMAGESTREAMIO_SUCCESS)
         {
             std::cout
-                << "ImageStreamMamager: Failed to create image."
+                << "ImageStreamMamager: failed to create image."
                 << std::endl;
             delete mp_image;
             return false;
@@ -85,7 +85,7 @@ bool ImageStreamManager::initialize(AppSettings* p_appSettings)
         else
         {
             std::cout
-                << "ImageStreamMamager: Image successfullycreated."
+                << "ImageStreamMamager: image successfullycreated."
                 << std::endl;
             m_semaphoreIndex =
                 ImageStreamIO_getsemwaitindex(mp_image, m_semaphoreIndex);
@@ -94,9 +94,19 @@ bool ImageStreamManager::initialize(AppSettings* p_appSettings)
     }
 }
 
-void ImageStreamManager::waitForNextImage() {
-    ImageStreamIO_semwait(mp_image, m_semaphoreIndex);
-    ImageStreamIO_semflush(mp_image, m_semaphoreIndex);
+bool ImageStreamManager::waitForNextImage(int timeout_us) {
+    clock_gettime(CLOCK_REALTIME, &m_ISIOtimeout);
+    m_ISIOtimeout.tv_nsec += (__time_t) timeout_us*1000;
+
+    ImageStreamIO_semtimedwait(mp_image, m_semaphoreIndex, &m_ISIOtimeout);
+    if (mp_image->md->cnt0 != m_lastCnt0)
+    {
+        m_lastCnt0 = mp_image->md->cnt0;
+        ImageStreamIO_semflush(mp_image, m_semaphoreIndex);
+        return true;
+    }
+    else
+        return false;
 }
 
 float* ImageStreamManager::getData()

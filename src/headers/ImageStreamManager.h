@@ -10,13 +10,17 @@ public:
 
     bool initialize(AppSettings* p_appSettings);
 
-    void waitForNextImage();
+    // Waits a specified time for a new image
+    // Returns true if a new image is available
+    bool waitForNextImage(int timeout_us);
     float* getData();
     int getDataSize();
 
 private:
     IMAGE* mp_image;
     uint_fast16_t m_semaphoreIndex = 0;
+    timespec m_ISIOtimeout;
+    int m_lastCnt0 = -1;
 };
 
 #endif // IMAGESTREAMMANAGER_H
