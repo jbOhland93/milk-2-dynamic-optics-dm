@@ -1,0 +1,3 @@
+DM-IPAddress=myIpAddress
+actuatorCount=96
+DMcombStream=myDMstream
