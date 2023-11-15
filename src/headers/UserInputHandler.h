@@ -4,6 +4,9 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <memory>
+#include "../headers/dmController.h"
+#include "../headers/ImageStreamManager.h"
 
 enum class userCmd{
 	CMD_HELP,
@@ -21,12 +24,16 @@ class UserInputHandler
 		static std::map<userCmd,std::string> cmdHelp;
 		
 		// Constructor
-		UserInputHandler(bool test);
+		UserInputHandler(
+			std::shared_ptr<DMController> p_dmController,
+			std::shared_ptr<ImageStreamManager> p_imageStreamManager);
 
         // The central loop of the input handler. Handles user input.
         void core();
 
     private:
+		const std::shared_ptr<DMController> mp_DMController;
+		const std::shared_ptr<ImageStreamManager> mp_ISManager;
 		bool mRunning = true;
 		int mPrintareaStart;
 		const char * mPrompt = "Enter command: ";

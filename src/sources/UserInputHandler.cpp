@@ -30,7 +30,11 @@ map<userCmd,string> UserInputHandler::cmdHelp = {
 	{userCmd::CMD_QUIT, "Quits the programm"},
 };
 
-UserInputHandler::UserInputHandler(bool test)
+UserInputHandler::UserInputHandler(
+    std::shared_ptr<DMController> p_dmController,
+    std::shared_ptr<ImageStreamManager> p_imageStreamManager)
+    :   mp_DMController(p_dmController),
+        mp_ISManager(p_imageStreamManager)
 {
 }
 
