@@ -10,10 +10,6 @@
         return retval;                      \
     }
 
-DMController::DMController()
-{
-}
-
 DMController::~DMController()
 {
     // Safely destroy the PztMulti instance and disconnect from the device

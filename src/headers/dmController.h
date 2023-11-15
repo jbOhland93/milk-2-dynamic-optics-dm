@@ -7,7 +7,6 @@
 #include "PztMultiInterface.h"
 class DMController {
 public:
-    DMController();
     ~DMController();
 
     bool initialize(AppSettings* p_appSettings);

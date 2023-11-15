@@ -22,17 +22,21 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<DMController> p_DMC
         = std::shared_ptr<DMController>(
             new DMController() );
-    bool driverSuccess = p_DMC->initialize(p_appSettings);
-    if (!driverSuccess)
+    if (!p_DMC->initialize(p_appSettings))
     {
         cout << "Error initializing driver. Exiting programm." << endl;
-        return 1;
+        //return 1;
     }
 
     // Initialize Image Stream Handler
     std::shared_ptr<ImageStreamManager> p_ISM
         = std::shared_ptr<ImageStreamManager>(
-            new ImageStreamManager(p_appSettings) );
+            new ImageStreamManager() );
+    if (!p_ISM->initialize(p_appSettings))
+    {
+        cout << "Error initializing driver. Exiting programm." << endl;
+        return 1;
+    }
     
     // Start the CLI
     UserInputHandler ui(p_DMC, p_ISM);

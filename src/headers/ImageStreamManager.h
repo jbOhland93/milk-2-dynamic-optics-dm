@@ -2,24 +2,21 @@
 #define IMAGESTREAMMANAGER_H
 
 #include <ImageStruct.h>
-
 #include "AppSettings.h"
 
 class ImageStreamManager {
 public:
-    ImageStreamManager(AppSettings* p_appSettings);
     ~ImageStreamManager();
 
-    bool initialize();
+    bool initialize(AppSettings* p_appSettings);
 
     void waitForNextImage();
-    double* getData();
+    float* getData();
     int getDataSize();
 
 private:
-    const char* mImageName;
-    IMAGE mImage;
-    uint_fast16_t mSemaphoreIndex = 0;
+    IMAGE* mp_image;
+    uint_fast16_t m_semaphoreIndex = 0;
 };
 
 #endif // IMAGESTREAMMANAGER_H
