@@ -3,10 +3,11 @@
 
 #include "../headers/ImageStreamManager.h"
 #include "../headers/dmController.h"
+#include "../headers/AppSettings.h"
 
 class DMUpdateLoop {
 public:
-    DMUpdateLoop(const char* image_name, const char* deviceIP);
+    DMUpdateLoop(AppSettings* p_appSettings);
     ~DMUpdateLoop();
 
     void run();

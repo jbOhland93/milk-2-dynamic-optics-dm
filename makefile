@@ -7,9 +7,10 @@ CXX := g++
 CPPFLAGS := -g 
 
 EXT_LIB_DIRS := -L${MILK_INSTALLDIR}/lib/
+#	-lcurses			- ncurses library for CLI
 #	-lImageStreamIO		- Interfacing with milk data streams
 #	-lPztMulti			- Interfacing with the Dynamic Optics DM
-LDFLAGS := $(EXT_LIB_DIRS) -lImageStreamIO -lPztMulti
+LDFLAGS := $(EXT_LIB_DIRS) -lncurses -lImageStreamIO -lPztMulti -lpthread
 EXT_INC_DIRS := -I${MILK_INSTALLDIR}/include/ImageStreamIO/
 
 # =========================

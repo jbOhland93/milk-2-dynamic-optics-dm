@@ -1,9 +1,9 @@
 #include "../headers/dmUpdateLoop.h"
 #include <iostream>
 
-DMUpdateLoop::DMUpdateLoop(const char* image_name, const char* deviceIP)
-    : mISManager(image_name) {
-    if (!mDMController.initialize(deviceIP) || !mISManager.initialize()) {
+DMUpdateLoop::DMUpdateLoop(AppSettings* p_appSettings)
+    : mISManager(p_appSettings) {
+    if (!mDMController.initialize(p_appSettings) || !mISManager.initialize()) {
         std::cerr << "ERROR: Initialization failed." << std::endl;
         mInitSuccess = false;
     }
