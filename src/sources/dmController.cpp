@@ -107,15 +107,12 @@ bool DMController::relaxDM()
 
     // Start the relaxation process
     relax(mp_driverInstance);
-    std::cout << "DMController: relaxing DM...";
 
     // Poll the device to check if it is busy with the operation
     while( isBusy(mp_driverInstance) ) {
         // Wait for 100 milliseconds before polling again
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    std::cout << std::endl
-        << "DMController: relaxation routine complete." << std::endl; 
 
     return true;
 }

@@ -85,7 +85,7 @@ bool ImageStreamManager::initialize(AppSettings* p_appSettings)
         else
         {
             std::cout
-                << "ImageStreamMamager: image successfullycreated."
+                << "ImageStreamMamager: image successfully created."
                 << std::endl;
             m_semaphoreIndex =
                 ImageStreamIO_getsemwaitindex(mp_image, m_semaphoreIndex);

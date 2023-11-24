@@ -181,8 +181,16 @@ void UserInputHandler::execCmdRelax()
         mvprintw(LINES-1, 0, "DM is armed for ISIO control. Disarm before relaxing.");
     else
     {
+        // Print a WIP notification
+        wmove(stdscr, LINES-1, 0);
+        clrtoeol();
         mvprintw(LINES-1, 0, "Relaxation routine running...");
+        wrefresh(stdscr);
+        // Launch relaxing routine
         mp_DMController->relaxDM();
+        // Print a completion notification
+        wmove(stdscr, LINES-1, 0);
+        clrtoeol();
         mvprintw(LINES-1, 0, "Relaxation routine finished!");
     }
 }
