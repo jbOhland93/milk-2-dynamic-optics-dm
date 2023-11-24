@@ -44,9 +44,9 @@ bool DMController::initialize(AppSettings* p_appSettings)
     // Initialize the plugin settings
     // Number of actuators
     m_dmSettings.actuators = p_appSettings->getDmActuatorCount();
-    m_dmSettings.center    = 0.0;   // Center position
-    m_dmSettings.lower     = -1.0;  // Lower limit for the actuator position
-    m_dmSettings.upper     = 1.0;   // Upper limit for the actuator position
+    m_dmSettings.center    = p_appSettings->getDmVoltageCenter();
+    m_dmSettings.lower     = p_appSettings->getDmVoltageLower();
+    m_dmSettings.upper     = p_appSettings->getDmVoltageUpper();
 
     mp_valBufferArr = new double[m_dmSettings.actuators];
 

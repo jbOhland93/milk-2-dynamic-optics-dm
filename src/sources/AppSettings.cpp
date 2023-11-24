@@ -8,7 +8,7 @@
 
 AppSettings::AppSettings(const std::string& filepath)
     : m_filepath(filepath)
- {
+{
     char buffer[256];
     if (getcwd(buffer, sizeof(buffer)) != NULL)
         std::cout << "Current Working Directory: " << buffer << std::endl;
@@ -23,6 +23,9 @@ AppSettings::AppSettings(const std::string& filepath)
             if (std::getline(iss, value)) {
                 if (key == "DM-IPAddress") m_dmAddress = value;
                 else if (key == "actuatorCount") m_dmActuatorCount = std::stoi(value);
+                else if (key == "actuatorVoltageUpper") m_dmVUpper = std::stod(value);
+                else if (key == "actuatorVoltageLower") m_dmVLower = std::stod(value);
+                else if (key == "actuatorVoltageCenter") m_dmVCenter = std::stod(value);
                 else if (key == "DMcombStream") m_dmImName = value;
             }
         }
@@ -36,5 +39,8 @@ void AppSettings::printSettings()
                 << "':" << std::endl;
     std::cout   << "\t DM IP address: " << m_dmAddress << std::endl;
     std::cout   << "\t DM actuator count: " << m_dmActuatorCount << std::endl;
+    std::cout   << "\t DM voltate upper limit: " << m_dmVUpper << std::endl;
+    std::cout   << "\t DM voltage center value: " << m_dmVCenter << std::endl;
+    std::cout   << "\t DM voltate lower limit: " << m_dmVLower << std::endl;
     std::cout   << "\t DM comb stream: " << m_dmImName << std::endl;
 }
