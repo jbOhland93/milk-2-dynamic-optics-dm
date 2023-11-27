@@ -32,8 +32,7 @@ bool ImageStreamManager::initialize(AppSettings* p_appSettings)
                     p_appSettings->getISIOdmImName().c_str());
     if (ret == IMAGESTREAMIO_SUCCESS)
     {   // Success. Check compatibility.
-        if (mp_image->md->naxis == 1
-            && mp_image->md->size[0] == p_appSettings->getDmActuatorCount()
+        if (mp_image->md->nelement == p_appSettings->getDmActuatorCount()
             && mp_image->md->datatype == _DATATYPE_FLOAT)
         {
             std::cout
@@ -44,8 +43,14 @@ bool ImageStreamManager::initialize(AppSettings* p_appSettings)
         else
         {
             std::cout
-                << "ImageStreamMamager: image opened, but has wrong dimension, size or datatype."
+                << "ImageStreamMamager: image opened, but has wrong size or datatype:"
                 << std::endl;
+            std::cout << "\t nelement is " << mp_image->md->nelement
+                << " and should be " << p_appSettings->getDmActuatorCount()
+                << "." << std::endl;
+            std::cout << "\t datatype is " << (int) mp_image->md->datatype
+                << "and should be " << (int) _DATATYPE_FLOAT
+                << " (float)." << std::endl;
             return false;
         }
     }
