@@ -12,7 +12,8 @@ https://github.com/milk-org/milk
 **Requirements:**
 - Linux OS - tested on Ubuntu 20.04.6 LTS
 - g++ installed - c++ compiler
-- <Preliminary: Installed DO API>
+- Dynamic Optics "PztMulti" API
+- ImageStreamIO (shipped with milk)
 
 | Terminal Command | Description |
 | ------ | ------ |
