@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <iostream>
 #include <thread>
+#include <cmath>
+#include <ImageStreamIO.h>
 
 #define passOrReturn(check, errmsg, retval) \
     if (check)                              \
@@ -21,9 +23,20 @@ DMController::~DMController()
 
         delete[] mp_valBufferArr;
     }
+
+    if (mp_outputImage != nullptr)
+    {
+        ImageStreamIO_closeIm(mp_outputImage);
+        ImageStreamIO_destroyIm(mp_outputImage);
+        delete mp_outputImage;
+    }
 }
 
-bool DMController::initialize(AppSettings* p_appSettings)
+bool DMController::initialize(
+    AppSettings* p_appSettings,
+    bool postSetValues,
+    const char* postImName,
+    int postImWidth)
 {
     passOrReturn(mp_driverInstance != nullptr,
         "DMController: already initialized.", false);
@@ -69,6 +82,10 @@ bool DMController::initialize(AppSettings* p_appSettings)
     passOrReturn(!equal,
         "DMController: settings from device do not equal sent settings.", false);
 
+    // Set up debugging image, if demanded
+    if (postSetValues)
+        setUpDebuggingImage(postImName, postImWidth);
+
     return true;
 }
 
@@ -85,10 +102,18 @@ bool DMController::setActuatorValues(double *values)
         // Wait for 5 microseconds before polling again
         // Use busysleep to avoid the scheduler kicking in
         auto end = std::chrono::steady_clock::now()
-                 + std::chrono::microseconds(5);
+                 + std::chrono::microseconds(100);
         while(std::chrono::steady_clock::now() < end);
     }
-    return setValues(mp_driverInstance, values, m_dmSettings.actuators) == 0;
+    int retval = setValues(mp_driverInstance, values, m_dmSettings.actuators);
+    if (mp_outputImage != nullptr)
+    {
+        double* dst = (double*) ImageStreamIO_get_image_d_ptr(mp_outputImage);
+        for (int i = 0; i < m_dmSettings.actuators; i++)
+            dst[i] = values[i];
+        ImageStreamIO_UpdateIm(mp_outputImage);
+    }
+    return retval == 0;
 }
 
 bool DMController::setActuatorValues(float *values)
@@ -115,6 +140,76 @@ bool DMController::relaxDM()
     }
 
     return true;
+}
+
+void DMController::setUpDebuggingImage(
+        const char* postImName,
+        int postImWidth)
+{
+    std::cout
+        << "DMController: attempting to open image containing set values with name \""
+        << postImName << "\"..." << std::endl;
+    mp_outputImage = new IMAGE;
+    errno_t ret = ImageStreamIO_openIm(mp_outputImage,
+                postImName);
+    if (ret == IMAGESTREAMIO_SUCCESS)
+    {   // Success. Check compatibility.
+        if (mp_outputImage->md->nelement >= m_dmSettings.actuators
+            && mp_outputImage->md->datatype == _DATATYPE_DOUBLE)
+        {
+            std::cout
+                << "DMController: output image successfully opened."
+                << std::endl;
+            return;
+        }
+        else
+        {
+            std::cout
+                << "DMController: output image opened, but has insufficient size or wrong datatype."
+                << std::endl;
+            std::cout
+                << "DMController: replacing image..."
+                << std::endl;
+            ImageStreamIO_closeIm(mp_outputImage);
+            ImageStreamIO_destroyIm(mp_outputImage);
+        }
+    }
+    else
+        std::cout << "DMController: could not open output image." << std::endl;
+    
+    // Image could not be opened
+    std::cout << "DMController: creating image containing set values with name \""
+        << postImName << "\"..." << std::endl;
+    int naxis = 2;
+    uint32_t * imsize = new uint32_t[naxis]();
+    imsize[0] = postImWidth;
+    imsize[1] = (int) std::ceil(m_dmSettings.actuators / postImWidth);
+    uint8_t atype = _DATATYPE_DOUBLE;
+    int shared = 1; // image will be in shared memory
+    int NBkw = 0; // No keywords
+    int circBufSize = 0;
+    ret = ImageStreamIO_createIm_gpu(mp_outputImage,
+                            postImName,
+                            naxis,
+                            imsize,
+                            atype,
+                            -1, // -1 = Host, >=0 = device
+                            shared,
+                            10,
+                            NBkw,
+                            MATH_DATA,
+                            circBufSize);
+    delete[] imsize;
+    
+    if (ret == IMAGESTREAMIO_SUCCESS)
+    {
+        std::cout << "DMController: output image successfully created." << std::endl;
+        return;
+    }
+    
+    std::cout << "DMController: failed to create output image." << std::endl;
+    delete mp_outputImage;
+    mp_outputImage = nullptr;
 }
 
 void DMController::forceInitialized(std::string actionName)

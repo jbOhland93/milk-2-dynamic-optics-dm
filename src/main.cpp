@@ -10,11 +10,18 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-    // Initialize settings
-    AppSettings* p_appSettings;
-    if (argc > 1)
-        p_appSettings = new AppSettings(argv[1]);
-    else
+    // Parse arguments, initialize settings
+    AppSettings* p_appSettings = nullptr;
+    bool provideDebugOutput = false;
+    for (int i = 1; i < argc; ++i)
+    {
+        std::string arg = argv[i];
+        if (arg == "-d" || arg == "--debug")
+            provideDebugOutput = true;
+        else
+            p_appSettings = new AppSettings(arg);
+    }
+    if (p_appSettings == nullptr)
         p_appSettings = new AppSettings();
     p_appSettings->printSettings();
 
@@ -22,7 +29,7 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<DMController> p_DMC
         = std::shared_ptr<DMController>(
             new DMController() );
-    if (!p_DMC->initialize(p_appSettings))
+    if (!p_DMC->initialize(p_appSettings, provideDebugOutput))
     {
         cout << "Error initializing driver. Exiting programm." << endl;
         return 1;
