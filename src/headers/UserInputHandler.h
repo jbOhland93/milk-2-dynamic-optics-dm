@@ -14,6 +14,7 @@ enum class userCmd{
 	CMD_ARM,
 	CMD_DISARM,
 	CMD_RELAX,
+	CMD_STRESSTEST,
 	CMD_QUIT
 };
 
@@ -58,6 +59,8 @@ class UserInputHandler
 		void execCmdHelp();
 		// Activates/deactivates DM input from ISIO
 		void execCmdArmDisarm(bool arm);
+		// Performs a DM stress test with a given number of pokes
+		void execCmdStresstest(std::vector<std::string> args);
 		// Starts the relax routine of the DM
 		void execCmdRelax();
 		

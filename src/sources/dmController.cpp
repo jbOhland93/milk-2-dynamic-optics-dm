@@ -98,14 +98,10 @@ bool DMController::setActuatorValues(double *values)
 {
     forceInitialized("setActuatorValues(double*)");
     // Poll the device to check if it is busy with the operation
-    while( isBusy(mp_driverInstance) ) {
-        // Wait for 5 microseconds before polling again
-        // Use busysleep to avoid the scheduler kicking in
-        auto end = std::chrono::steady_clock::now()
-                 + std::chrono::microseconds(100);
-        while(std::chrono::steady_clock::now() < end);
-    }
+    while( isBusy(mp_driverInstance) ) {}
     int retval = setValues(mp_driverInstance, values, m_dmSettings.actuators);
+
+    // Copy the values to the output image
     if (mp_outputImage != nullptr)
     {
         double* dst = (double*) ImageStreamIO_get_image_d_ptr(mp_outputImage);
@@ -140,6 +136,50 @@ bool DMController::relaxDM()
     }
 
     return true;
+}
+
+bool DMController::stressTest(
+    int numPokes,
+    int64_t* duration_us_out,
+    int* missedPokes_out)
+{
+    // Initialize poke values
+    float* poke1 = new float[m_dmSettings.actuators];
+    float* poke2 = new float[m_dmSettings.actuators];
+    for (int i = 0; i < m_dmSettings.actuators; i++)
+    {
+        poke1[i] = m_dmSettings.lower * 0.1;
+        poke2[i] = m_dmSettings.upper * 0.1;
+    }
+
+    // Record start time
+    auto start = std::chrono::high_resolution_clock::now();
+    int errCnt = 0;
+
+    // Perform pokes
+    for (int i = 0; i < numPokes; i++)
+        if (i%2)
+            if (!setActuatorValues(poke1))
+                errCnt++;
+        else
+            if (!setActuatorValues(poke2))
+                errCnt++;
+
+    // Record end time
+    auto end = std::chrono::high_resolution_clock::now();
+
+    // Write telemetry to given ptrs
+    if (duration_us_out != nullptr)
+        *duration_us_out = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    if (missedPokes_out != nullptr)
+        *missedPokes_out = errCnt;
+    
+    // Clean up
+    delete[] poke1;
+    delete[] poke2;
+
+    // Return true if no pokes were missed
+    return errCnt == 0;
 }
 
 void DMController::setUpDebuggingImage(
