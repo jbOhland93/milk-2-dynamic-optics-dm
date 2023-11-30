@@ -6,5 +6,6 @@ actuatorCount=96
 actuatorVoltageUpper=1
 actuatorVoltageLower=-0.8
 actuatorVoltageCenter=0
+framerateCap_Hz=500.0
 
 DMcombStream=myDMstream

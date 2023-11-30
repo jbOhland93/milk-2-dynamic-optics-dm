@@ -3,6 +3,7 @@
 
 #include "AppSettings.h"
 #include "ImageStruct.h"
+#include <chrono>
 
 // DM library
 #include "PztMultiInterface.h"
@@ -16,6 +17,7 @@ public:
         const char* postImName = "milk-2-dm-output",// Name of output image
         int postImWidth = 12);                      // Width of output image - multiple lines if too small
 
+    void setFrameRateCap(float fps);
     bool checkDataSize(int size);
     bool setActuatorValues(double* values);
     bool setActuatorValues(float* values);
@@ -34,6 +36,11 @@ private:
     ADPluginSettings m_dmSettings;
     // Buffer array for converting other types of input values
     double* mp_valBufferArr = nullptr;
+    // Framerate cap in Hz.
+    // If <= 0, the isBusy() command will be used (=freerunning)
+    float m_framerateCap_Hz = 500.;
+    int64_t m_frameDtCap_us = (int64_t) (1e6 / m_framerateCap_Hz);
+    std::chrono::_V2::system_clock::time_point m_lastFrame;
 
     // == debugging ==
     IMAGE* mp_outputImage = nullptr;

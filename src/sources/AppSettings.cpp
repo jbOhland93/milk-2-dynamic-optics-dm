@@ -26,6 +26,7 @@ AppSettings::AppSettings(const std::string& filepath)
                 else if (key == "actuatorVoltageUpper") m_dmVUpper = std::stod(value);
                 else if (key == "actuatorVoltageLower") m_dmVLower = std::stod(value);
                 else if (key == "actuatorVoltageCenter") m_dmVCenter = std::stod(value);
+                else if (key == "framerateCap_Hz") m_dmFPScap_Hz = std::stof(value);
                 else if (key == "DMcombStream") m_dmImName = value;
             }
         }
@@ -42,5 +43,6 @@ void AppSettings::printSettings()
     std::cout   << "\t DM voltate upper limit: " << m_dmVUpper << std::endl;
     std::cout   << "\t DM voltage center value: " << m_dmVCenter << std::endl;
     std::cout   << "\t DM voltate lower limit: " << m_dmVLower << std::endl;
+    std::cout   << "\t DM frame rate cap: " << m_dmFPScap_Hz << " Hz" << std::endl;
     std::cout   << "\t DM comb stream: " << m_dmImName << std::endl;
 }

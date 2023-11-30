@@ -15,6 +15,7 @@ enum class userCmd{
 	CMD_DISARM,
 	CMD_RELAX,
 	CMD_STRESSTEST,
+	CMD_SET_FPSCAP,
 	CMD_QUIT
 };
 
@@ -61,6 +62,8 @@ class UserInputHandler
 		void execCmdArmDisarm(bool arm);
 		// Performs a DM stress test with a given number of pokes
 		void execCmdStresstest(std::vector<std::string> args);
+		// Sets an FPS cap (float) to the DM. Values <= 0 mean freerunning
+		void execCmdSetFPScap(std::vector<std::string> args);
 		// Starts the relax routine of the DM
 		void execCmdRelax();
 		

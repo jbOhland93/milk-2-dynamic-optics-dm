@@ -5,6 +5,8 @@
 #include <cmath>
 #include <ImageStreamIO.h>
 
+using namespace std::chrono;
+
 #define passOrReturn(check, errmsg, retval) \
     if (check)                              \
     {                                       \
@@ -86,7 +88,16 @@ bool DMController::initialize(
     if (postSetValues)
         setUpDebuggingImage(postImName, postImWidth);
 
+    // Set framerate cap
+    setFrameRateCap(p_appSettings->getDmFrameRateCap_Hz());
+
     return true;
+}
+
+void DMController::setFrameRateCap(float fps)
+{
+    m_framerateCap_Hz = fps;
+    m_frameDtCap_us = (int64_t) (1e6 / fps);
 }
 
 bool DMController::checkDataSize(int size)
@@ -97,8 +108,27 @@ bool DMController::checkDataSize(int size)
 bool DMController::setActuatorValues(double *values)
 {
     forceInitialized("setActuatorValues(double*)");
-    // Poll the device to check if it is busy with the operation
-    while( isBusy(mp_driverInstance) ) {}
+    
+    if (m_framerateCap_Hz <= 0)
+    {   // Poll the device to check if it is busy with the operation
+        while( isBusy(mp_driverInstance) ) {}
+    }
+    else
+    {   // Wait until the framerate cap is respected
+        _V2::system_clock::time_point currentTime;
+        nanoseconds sinceLast;
+        int64_t sinceLast_us;
+        do
+        {
+            currentTime = high_resolution_clock::now();
+            sinceLast = currentTime - m_lastFrame;
+            sinceLast_us = duration_cast<microseconds>(sinceLast).count();
+        }
+        while (m_frameDtCap_us > sinceLast_us);
+        m_lastFrame = currentTime;
+    }
+
+    // Set the values to the DM
     int retval = setValues(mp_driverInstance, values, m_dmSettings.actuators);
 
     // Copy the values to the output image

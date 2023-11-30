@@ -15,6 +15,7 @@ public:
     double getDmVoltageUpper() const { return m_dmVUpper; }
     double getDmVoltageLower() const { return m_dmVLower; }
     double getDmVoltageCenter() const { return m_dmVCenter; }
+    float getDmFrameRateCap_Hz() const { return m_dmFPScap_Hz; }
     std::string getISIOdmImName() const { return m_dmImName; }
 
     void printSettings();
@@ -26,6 +27,7 @@ private:
     double m_dmVUpper = 1.0;
     double m_dmVLower = -1.0;
     double m_dmVCenter = 0;
+    float m_dmFPScap_Hz = 500.;
     std::string m_dmImName = "unset";
 };
 

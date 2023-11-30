@@ -12,6 +12,7 @@ vector<userCmd> UserInputHandler::cmdList = {
 	userCmd::CMD_DISARM,
     userCmd::CMD_RELAX,
     userCmd::CMD_STRESSTEST,
+    userCmd::CMD_SET_FPSCAP,
 	userCmd::CMD_QUIT,
 };
 
@@ -21,6 +22,7 @@ map<string,userCmd> UserInputHandler::cmdStrings = {
     {"disarm", userCmd::CMD_DISARM},
     {"relax", userCmd::CMD_RELAX},
     {"stress", userCmd::CMD_STRESSTEST},
+    {"setFPS", userCmd::CMD_SET_FPSCAP},
 	{"quit", userCmd::CMD_QUIT},
 };
 
@@ -30,6 +32,7 @@ map<userCmd,string> UserInputHandler::cmdHelp = {
     {userCmd::CMD_DISARM, "Disables DM control via ISIO stream"},
     {userCmd::CMD_RELAX, "Starts the DM relaxation routine"},
     {userCmd::CMD_STRESSTEST, "Performs a simple stresstest and prints telemetry"},
+    {userCmd::CMD_SET_FPSCAP, "Limits the DM FPS; values <= 0 equal freerunning mode"},
 	{userCmd::CMD_QUIT, "Quits the programm"},
 };
 
@@ -108,6 +111,9 @@ void UserInputHandler::handleInput(char* input)
             break;
         case userCmd::CMD_STRESSTEST:
             execCmdStresstest(tokens);
+            break;
+        case userCmd::CMD_SET_FPSCAP:
+            execCmdSetFPScap(tokens);
             break;
 		case userCmd::CMD_QUIT:
 			m_running = false;
@@ -231,13 +237,34 @@ void UserInputHandler::execCmdStresstest(std::vector<string> args)
                 std::stringstream ss;
                 ss  << "Stresstest finished: " << numPokes - missedPokes
                     << "/" << numPokes << " pokes in " << duration_us
-                    << "us (" << (float) duration_us/(numPokes - missedPokes)
+                    << "us (" << (float) duration_us/(numPokes - missedPokes - 1 - (numPokes%2))
                     << "us per poke).";
                 wmove(stdscr, LINES-1, 0);
                 clrtoeol();
                 mvprintw(LINES-1, 0, ss.str().c_str());
             }
         }
+    }
+}
+
+void UserInputHandler::execCmdSetFPScap(std::vector<std::string> args)
+{
+    clearResponseLine();
+    if (args.size() < 2)
+        mvprintw(LINES-1, 0, "Please add the desired FPS (float) to the cmd.");
+    else
+    {
+        float fps = stof(args.at(1));
+        mp_DMController->setFrameRateCap(fps);
+        // Print a completion notification
+        std::stringstream ss;
+        if (fps <= 0)
+            ss << "DM set to freerunning mode.";
+        else
+            ss  << "Framerate set to " << fps << " Hz.";
+        wmove(stdscr, LINES-1, 0);
+        clrtoeol();
+        mvprintw(LINES-1, 0, ss.str().c_str());
     }
 }
 
