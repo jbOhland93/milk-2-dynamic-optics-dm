@@ -1,6 +1,8 @@
 # This file is a dummy, demonstrating the accepted fields.
 # Please create your own file using an aorun script in cacao.
 
+CPUcore=-1
+
 DM-IPAddress=192.168.0.1
 actuatorCount=96
 actuatorVoltageUpper=1

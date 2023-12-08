@@ -17,6 +17,7 @@ public:
     double getDmVoltageCenter() const { return m_dmVCenter; }
     float getDmFrameRateCap_Hz() const { return m_dmFPScap_Hz; }
     std::string getISIOdmImName() const { return m_dmImName; }
+    int getCPUcore() const { return m_cpuCore; }
 
     void printSettings();
 
@@ -29,6 +30,7 @@ private:
     double m_dmVCenter = 0;
     float m_dmFPScap_Hz = 500.;
     std::string m_dmImName = "unset";
+    int m_cpuCore = -1;
 };
 
 #endif // APPSETTINGS_H

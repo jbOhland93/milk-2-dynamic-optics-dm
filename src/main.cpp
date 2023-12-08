@@ -25,6 +25,23 @@ int main(int argc, char *argv[]) {
         p_appSettings = new AppSettings();
     p_appSettings->printSettings();
 
+    if (p_appSettings->getCPUcore() < 0)
+        std::cout << "Execution CPU core not specified in settings. Continue ...\n";
+    else if (p_appSettings->getCPUcore() >= std::thread::hardware_concurrency())
+    {
+        std::cout   << "Execution CPU core specified in settings exceeds number of physical cores. "
+                    << "\nAborting ...\n";
+        return 1;
+    }
+    else
+    {
+        std::cout   << "Waiting to be scheduled to execution CPU core("
+                    << p_appSettings->getCPUcore() << ")...\n";
+        while (sched_getcpu() != p_appSettings->getCPUcore())
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::cout   << "done!\n";
+    }
+
     // Initialize DM Controller
     std::shared_ptr<DMController> p_DMC
         = std::shared_ptr<DMController>(

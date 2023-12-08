@@ -115,9 +115,13 @@ bool DMController::setActuatorValues(double *values)
     }
     else
     {   // Wait until the framerate cap is respected
+        // Prapare for precise busy sleep...
         _V2::system_clock::time_point currentTime;
         nanoseconds sinceLast;
         int64_t sinceLast_us;
+        // ... but inprecisely wait for the majority of time in the regular way.
+        std::this_thread::sleep_for(std::chrono::microseconds(1000));
+        // Do the busy sleep for the rest of the time for precision.
         do
         {
             currentTime = high_resolution_clock::now();

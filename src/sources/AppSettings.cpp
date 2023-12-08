@@ -11,7 +11,7 @@ AppSettings::AppSettings(const std::string& filepath)
 {
     char buffer[256];
     if (getcwd(buffer, sizeof(buffer)) != NULL)
-        std::cout << "Current Working Directory: " << buffer << std::endl;
+        std::cout << "Current Working Directory: " << buffer << "\n";
 
     std::ifstream file(filepath);
     std::string line;
@@ -28,6 +28,7 @@ AppSettings::AppSettings(const std::string& filepath)
                 else if (key == "actuatorVoltageCenter") m_dmVCenter = std::stod(value);
                 else if (key == "framerateCap_Hz") m_dmFPScap_Hz = std::stof(value);
                 else if (key == "DMcombStream") m_dmImName = value;
+                else if (key == "CPUcore") m_cpuCore = std::stoi(value);
             }
         }
     }
@@ -37,12 +38,13 @@ void AppSettings::printSettings()
 {
     std::cout   << "Application settings read from '"
                 << m_filepath
-                << "':" << std::endl;
-    std::cout   << "\t DM IP address: " << m_dmAddress << std::endl;
-    std::cout   << "\t DM actuator count: " << m_dmActuatorCount << std::endl;
-    std::cout   << "\t DM voltate upper limit: " << m_dmVUpper << std::endl;
-    std::cout   << "\t DM voltage center value: " << m_dmVCenter << std::endl;
-    std::cout   << "\t DM voltate lower limit: " << m_dmVLower << std::endl;
-    std::cout   << "\t DM frame rate cap: " << m_dmFPScap_Hz << " Hz" << std::endl;
-    std::cout   << "\t DM comb stream: " << m_dmImName << std::endl;
+                << "':" << "\n";
+    std::cout   << "\t CPU core: " << m_cpuCore << "\n";
+    std::cout   << "\t DM IP address: " << m_dmAddress << "\n";
+    std::cout   << "\t DM actuator count: " << m_dmActuatorCount << "\n";
+    std::cout   << "\t DM voltate upper limit: " << m_dmVUpper << "\n";
+    std::cout   << "\t DM voltage center value: " << m_dmVCenter << "\n";
+    std::cout   << "\t DM voltate lower limit: " << m_dmVLower << "\n";
+    std::cout   << "\t DM frame rate cap: " << m_dmFPScap_Hz << " Hz" << "\n";
+    std::cout   << "\t DM comb stream: " << m_dmImName << "\n";
 }
