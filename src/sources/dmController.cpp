@@ -109,27 +109,15 @@ bool DMController::setActuatorValues(double *values)
 {
     forceInitialized("setActuatorValues(double*)");
     
-    if (m_framerateCap_Hz <= 0)
-    {   // Poll the device to check if it is busy with the operation
-        while( isBusy(mp_driverInstance) ) {}
-    }
-    else
-    {   // Wait until the framerate cap is respected
-        // Prapare for precise busy sleep...
-        _V2::system_clock::time_point currentTime;
-        nanoseconds sinceLast;
-        int64_t sinceLast_us;
-        // ... but inprecisely wait for the majority of time in the regular way.
-        std::this_thread::sleep_for(std::chrono::microseconds(1000));
-        // Do the busy sleep for the rest of the time for precision.
-        do
-        {
-            currentTime = high_resolution_clock::now();
-            sinceLast = currentTime - m_lastFrame;
-            sinceLast_us = duration_cast<microseconds>(sinceLast).count();
-        }
-        while (m_frameDtCap_us > sinceLast_us);
-        m_lastFrame = currentTime;
+    if (m_framerateCap_Hz > 0)
+    {   // Only set the values if the framerate cap is respected
+        _V2::system_clock::time_point currentTime = high_resolution_clock::now();
+        nanoseconds sinceLast = currentTime - m_lastFrame;
+        int64_t sinceLast_us = duration_cast<microseconds>(sinceLast).count();
+        if (m_frameDtCap_us > sinceLast_us)
+            return false;
+        else
+            m_lastFrame = currentTime;
     }
 
     // Set the values to the DM
@@ -143,6 +131,7 @@ bool DMController::setActuatorValues(double *values)
             dst[i] = values[i];
         ImageStreamIO_UpdateIm(mp_outputImage);
     }
+    
     return retval == 0;
 }
 
