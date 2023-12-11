@@ -161,10 +161,7 @@ bool DMController::relaxDM()
     return true;
 }
 
-bool DMController::stressTest(
-    int numPokes,
-    int64_t* duration_us_out,
-    int* missedPokes_out)
+int64_t DMController::stressTest(int numPokes)
 {
     // Initialize poke values
     float* poke1 = new float[m_dmSettings.actuators];
@@ -177,32 +174,28 @@ bool DMController::stressTest(
 
     // Record start time
     auto start = std::chrono::high_resolution_clock::now();
-    int errCnt = 0;
 
     // Perform pokes
     for (int i = 0; i < numPokes; i++)
         if (i%2)
-            if (!setActuatorValues(poke1))
-                errCnt++;
+            while (!setActuatorValues(poke1));
         else
-            if (!setActuatorValues(poke2))
-                errCnt++;
+            while (!setActuatorValues(poke2));
 
     // Record end time
     auto end = std::chrono::high_resolution_clock::now();
 
-    // Write telemetry to given ptrs
-    if (duration_us_out != nullptr)
-        *duration_us_out = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    if (missedPokes_out != nullptr)
-        *missedPokes_out = errCnt;
-    
+    // Reset channel values
+    for (int i = 0; i < m_dmSettings.actuators; i++)
+        poke1[i] = 0;
+    while (!setActuatorValues(poke1));
+
     // Clean up
     delete[] poke1;
     delete[] poke2;
 
     // Return true if no pokes were missed
-    return errCnt == 0;
+    return std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 }
 
 void DMController::setUpDebuggingImage(

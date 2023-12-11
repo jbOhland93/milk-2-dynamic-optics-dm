@@ -230,14 +230,12 @@ void UserInputHandler::execCmdStresstest(std::vector<string> args)
                 wrefresh(stdscr);
 
                 // Launch relaxing routine
-                int64_t duration_us;
-                int missedPokes;
-                mp_DMController->stressTest(numPokes, &duration_us, &missedPokes);
+                int64_t duration_us = mp_DMController->stressTest(numPokes);
                 // Print a completion notification
                 std::stringstream ss;
-                ss  << "Stresstest finished: " << numPokes - missedPokes
-                    << "/" << numPokes << " pokes in " << duration_us
-                    << "us (" << (float) duration_us/(numPokes - missedPokes - 1 - (numPokes%2))
+                ss  << "Stresstest finished: " << numPokes
+                    << " pokes in " << duration_us
+                    << "us (" << (float) duration_us/(numPokes - 1)
                     << "us per poke).";
                 wmove(stdscr, LINES-1, 0);
                 clrtoeol();

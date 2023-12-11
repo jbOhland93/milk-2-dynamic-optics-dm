@@ -22,10 +22,8 @@ public:
     bool setActuatorValues(double* values);
     bool setActuatorValues(float* values);
     bool relaxDM();
-    // Performs a given number of pokes in quick succession and returns telemetry
-    bool stressTest(int numPokes,
-        int64_t* duration_us_out = nullptr,
-        int* missedPokes_out = nullptr);
+    // Performs a given number of pokes in quick succession and the duration
+    int64_t stressTest(int numPokes);
 
 private:
     // Instance of the PztMulti API
