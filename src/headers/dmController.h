@@ -22,6 +22,7 @@ public:
     bool setActuatorValues(double* values);
     bool setActuatorValues(float* values);
     bool relaxDM();
+    bool setCDoffset(double dcOffset);
     // Performs a given number of pokes in quick succession and the duration
     int64_t stressTest(int numPokes);
 
@@ -34,11 +35,17 @@ private:
     ADPluginSettings m_dmSettings;
     // Buffer array for converting other types of input values
     double* mp_valBufferArr = nullptr;
+    // Buffer array for applying a DC offset
+    double* mp_offsetBufferArr = nullptr;
     // Framerate cap in Hz.
     // If <= 0, the isBusy() command will be used (=freerunning)
     float m_framerateCap_Hz = 500.;
     int64_t m_frameDtCap_us = (int64_t) (1e6 / m_framerateCap_Hz);
     std::chrono::_V2::system_clock::time_point m_lastFrame;
+
+    // Offset for all actuators
+    bool m_applyDCoffset = false;
+    double m_dcOffset = 0;
 
     // == debugging ==
     IMAGE* mp_outputImage = nullptr;

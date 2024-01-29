@@ -13,6 +13,7 @@ vector<userCmd> UserInputHandler::cmdList = {
     userCmd::CMD_RELAX,
     userCmd::CMD_STRESSTEST,
     userCmd::CMD_SET_FPSCAP,
+    userCmd::CMD_SET_DC_OFFSET,
 	userCmd::CMD_QUIT,
 };
 
@@ -23,6 +24,7 @@ map<string,userCmd> UserInputHandler::cmdStrings = {
     {"relax", userCmd::CMD_RELAX},
     {"stress", userCmd::CMD_STRESSTEST},
     {"setFPS", userCmd::CMD_SET_FPSCAP},
+    {"setDC", userCmd::CMD_SET_DC_OFFSET},
 	{"quit", userCmd::CMD_QUIT},
 };
 
@@ -33,6 +35,7 @@ map<userCmd,string> UserInputHandler::cmdHelp = {
     {userCmd::CMD_RELAX, "Starts the DM relaxation routine"},
     {userCmd::CMD_STRESSTEST, "Performs a simple stresstest and prints telemetry"},
     {userCmd::CMD_SET_FPSCAP, "Limits the DM FPS; values <= 0 equal freerunning mode"},
+    {userCmd::CMD_SET_DC_OFFSET, "Applies a DC offset over all actuators"},
 	{userCmd::CMD_QUIT, "Quits the programm"},
 };
 
@@ -114,6 +117,9 @@ void UserInputHandler::handleInput(char* input)
             break;
         case userCmd::CMD_SET_FPSCAP:
             execCmdSetFPScap(tokens);
+            break;
+        case userCmd::CMD_SET_DC_OFFSET:
+            execCmdDCoffset(tokens);
             break;
 		case userCmd::CMD_QUIT:
 			m_running = false;
@@ -235,7 +241,8 @@ void UserInputHandler::execCmdStresstest(std::vector<string> args)
                 std::stringstream ss;
                 ss  << "Stresstest finished: " << numPokes
                     << " pokes in " << duration_us
-                    << "us (" << (float) duration_us/(numPokes - 1)
+                    << "us (" << (float) duration_us/(numPokes - 1
+                    )
                     << "us per poke).";
                 wmove(stdscr, LINES-1, 0);
                 clrtoeol();
@@ -260,6 +267,24 @@ void UserInputHandler::execCmdSetFPScap(std::vector<std::string> args)
             ss << "DM set to freerunning mode.";
         else
             ss  << "Framerate set to " << fps << " Hz.";
+        wmove(stdscr, LINES-1, 0);
+        clrtoeol();
+        mvprintw(LINES-1, 0, ss.str().c_str());
+    }
+}
+
+void UserInputHandler::execCmdDCoffset(std::vector<std::string> args)
+{
+    clearResponseLine();
+    if (args.size() < 2)
+        mvprintw(LINES-1, 0, "Please add the desired DC offset (float) to the cmd.");
+    else
+    {
+        float dcOff = stof(args.at(1));
+        mp_DMController->setCDoffset(dcOff);
+        // Print a completion notification
+        std::stringstream ss;
+        ss  << "DC offset of " << dcOff << " applied.";
         wmove(stdscr, LINES-1, 0);
         clrtoeol();
         mvprintw(LINES-1, 0, ss.str().c_str());

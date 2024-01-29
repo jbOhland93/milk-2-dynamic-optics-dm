@@ -24,6 +24,7 @@ DMController::~DMController()
         std::cout << "DMController: disconnected from DM!" << std::endl; 
 
         delete[] mp_valBufferArr;
+        delete[] mp_offsetBufferArr;
     }
 
     if (mp_outputImage != nullptr)
@@ -64,6 +65,7 @@ bool DMController::initialize(
     m_dmSettings.upper     = p_appSettings->getDmVoltageUpper();
 
     mp_valBufferArr = new double[m_dmSettings.actuators];
+    mp_offsetBufferArr = new double[m_dmSettings.actuators];
 
     // Attempt to open the PztMulti instance with the given settings
     std::cout << "DMController: opening PztMulti instance..." << std::endl; 
@@ -120,8 +122,17 @@ bool DMController::setActuatorValues(double *values)
             m_lastFrame = currentTime;
     }
 
-    // Set the values to the DM
-    int retval = setValues(mp_driverInstance, values, m_dmSettings.actuators);
+    int retval;
+    if (m_applyDCoffset)
+    {   // Apply the DC offset and set the values afterwards
+        for (int i = 0; i < m_dmSettings.actuators; i++)
+            mp_offsetBufferArr[i] = values[i] + m_dcOffset;
+        retval = setValues(mp_driverInstance, mp_offsetBufferArr, m_dmSettings.actuators);
+    }
+    else
+    {   // Set the values to the DM
+        retval = setValues(mp_driverInstance, values, m_dmSettings.actuators);
+    }
 
     // Copy the values to the output image
     if (mp_outputImage != nullptr)
@@ -159,6 +170,41 @@ bool DMController::relaxDM()
     }
 
     return true;
+}
+
+bool DMController::setCDoffset(double dcOff)
+{
+    if (dcOff != m_dcOffset)
+    {
+        double offsetOld = m_dcOffset;
+        m_dcOffset = dcOff;
+        m_applyDCoffset = true;
+
+        // Get current values
+        double* values = new double[m_dmSettings.actuators];
+
+        bool success = true;
+        // Get all channels values
+        if( getValues(mp_driverInstance, values, m_dmSettings.actuators) )
+        {
+            std::cerr << "Failed to get values" << std::endl;
+            success = false;  // Return an error code
+        }
+        else
+        {
+            for (int i = 0; i < m_dmSettings.actuators; i++)
+                values[i] -= offsetOld;
+            success = setActuatorValues(values);
+        }
+        
+        if (m_dcOffset == 0)
+            m_applyDCoffset = false;
+
+        delete[] values;
+        return success;
+    }
+    else
+        return true;
 }
 
 int64_t DMController::stressTest(int numPokes)

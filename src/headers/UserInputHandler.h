@@ -16,6 +16,7 @@ enum class userCmd{
 	CMD_RELAX,
 	CMD_STRESSTEST,
 	CMD_SET_FPSCAP,
+	CMD_SET_DC_OFFSET,
 	CMD_QUIT
 };
 
@@ -66,6 +67,8 @@ class UserInputHandler
 		void execCmdSetFPScap(std::vector<std::string> args);
 		// Starts the relax routine of the DM
 		void execCmdRelax();
+		// Adds a permanent DC offset to the DM
+		void execCmdDCoffset(std::vector<std::string> args);
 		
 		// === Print methods ===
 		// Clears the print area
