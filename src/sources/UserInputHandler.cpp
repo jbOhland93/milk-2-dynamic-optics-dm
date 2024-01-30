@@ -14,6 +14,9 @@ vector<userCmd> UserInputHandler::cmdList = {
     userCmd::CMD_STRESSTEST,
     userCmd::CMD_SET_FPSCAP,
     userCmd::CMD_SET_DC_OFFSET,
+    userCmd::CMD_GET_STATUS,
+	userCmd::CMD_GET_FPSCAP,
+	userCmd::CMD_GET_DC_OFFSET,
 	userCmd::CMD_QUIT,
 };
 
@@ -25,6 +28,9 @@ map<string,userCmd> UserInputHandler::cmdStrings = {
     {"stress", userCmd::CMD_STRESSTEST},
     {"setFPS", userCmd::CMD_SET_FPSCAP},
     {"setDC", userCmd::CMD_SET_DC_OFFSET},
+    {"status", userCmd::CMD_GET_STATUS},
+	{"getFPS", userCmd::CMD_GET_FPSCAP},
+	{"getDC", userCmd::CMD_GET_DC_OFFSET},
 	{"quit", userCmd::CMD_QUIT},
 };
 
@@ -36,6 +42,9 @@ map<userCmd,string> UserInputHandler::cmdHelp = {
     {userCmd::CMD_STRESSTEST, "Performs a simple stresstest and prints telemetry"},
     {userCmd::CMD_SET_FPSCAP, "Limits the DM FPS; values <= 0 equal freerunning mode"},
     {userCmd::CMD_SET_DC_OFFSET, "Applies a DC offset over all actuators"},
+    {userCmd::CMD_GET_STATUS, "Print status information"},
+	{userCmd::CMD_GET_FPSCAP, "Print the current FPS cap"},
+	{userCmd::CMD_GET_DC_OFFSET, "Print the current DC offset"},
 	{userCmd::CMD_QUIT, "Quits the programm"},
 };
 
@@ -119,7 +128,16 @@ void UserInputHandler::handleInput(char* input)
             execCmdSetFPScap(tokens);
             break;
         case userCmd::CMD_SET_DC_OFFSET:
-            execCmdDCoffset(tokens);
+            execCmdSetDCoffset(tokens);
+            break;
+        case userCmd::CMD_GET_STATUS:
+            execCmdGetStatus();
+            break;
+        case userCmd::CMD_GET_FPSCAP:
+            execCmdGetFPScap();
+            break;
+        case userCmd::CMD_GET_DC_OFFSET:
+            execCmdGetDCoffset();
             break;
 		case userCmd::CMD_QUIT:
 			m_running = false;
@@ -273,7 +291,7 @@ void UserInputHandler::execCmdSetFPScap(std::vector<std::string> args)
     }
 }
 
-void UserInputHandler::execCmdDCoffset(std::vector<std::string> args)
+void UserInputHandler::execCmdSetDCoffset(std::vector<std::string> args)
 {
     clearResponseLine();
     if (args.size() < 2)
@@ -289,6 +307,45 @@ void UserInputHandler::execCmdDCoffset(std::vector<std::string> args)
         clrtoeol();
         mvprintw(LINES-1, 0, ss.str().c_str());
     }
+}
+
+void UserInputHandler::execCmdGetStatus()
+{
+    clearResponseLine();
+    
+    wmove(stdscr, LINES-1, 0);
+    clrtoeol();
+    std::stringstream ss;
+    
+    if (m_armed)
+        mvprintw(LINES-1, 0, "The DM is currently armed for ISO input.");
+    else
+        mvprintw(LINES-1, 0, "The DM is unarmed for maintenance.");
+    
+}
+
+void UserInputHandler::execCmdGetFPScap()
+{
+    clearResponseLine();
+
+    float fps = mp_DMController->getFPScapHz();
+    std::stringstream ss;
+    ss << "The current FPS cap is " << fps << " Hz.";    
+    wmove(stdscr, LINES-1, 0);
+    clrtoeol();
+    mvprintw(LINES-1, 0, ss.str().c_str());
+}
+
+void UserInputHandler::execCmdGetDCoffset()
+{
+    clearResponseLine();
+
+    float offset = mp_DMController->getDCoffset();
+    std::stringstream ss;
+    ss << "The current DC offset is " << offset << ".";    
+    wmove(stdscr, LINES-1, 0);
+    clrtoeol();
+    mvprintw(LINES-1, 0, ss.str().c_str());
 }
 
 void UserInputHandler::clearPrintArea()

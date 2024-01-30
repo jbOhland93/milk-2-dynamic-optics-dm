@@ -17,6 +17,9 @@ enum class userCmd{
 	CMD_STRESSTEST,
 	CMD_SET_FPSCAP,
 	CMD_SET_DC_OFFSET,
+	CMD_GET_STATUS,
+	CMD_GET_FPSCAP,
+	CMD_GET_DC_OFFSET,
 	CMD_QUIT
 };
 
@@ -68,7 +71,13 @@ class UserInputHandler
 		// Starts the relax routine of the DM
 		void execCmdRelax();
 		// Adds a permanent DC offset to the DM
-		void execCmdDCoffset(std::vector<std::string> args);
+		void execCmdSetDCoffset(std::vector<std::string> args);
+		// Prints information about the DM status
+		void execCmdGetStatus();
+		// Prints the current FPS cap
+		void execCmdGetFPScap();
+		// Prints the current DC offset
+		void execCmdGetDCoffset();
 		
 		// === Print methods ===
 		// Clears the print area

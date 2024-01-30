@@ -23,6 +23,10 @@ public:
     bool setActuatorValues(float* values);
     bool relaxDM();
     bool setDCoffset(double dcOffset);
+    // Getters
+    float getFPScapHz() { return m_framerateCap_Hz; }
+    float getDCoffset() { return m_dcOffset; }
+
     // Performs a given number of pokes in quick succession and the duration
     int64_t stressTest(int numPokes);
 

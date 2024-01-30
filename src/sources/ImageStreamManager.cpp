@@ -28,74 +28,40 @@ bool ImageStreamManager::initialize(AppSettings* p_appSettings)
         mp_image = new IMAGE;
 
     // Try to open the image
-    errno_t ret = ImageStreamIO_openIm(mp_image,
+    bool success = false;
+    while(!success)
+    {
+        errno_t ret = ImageStreamIO_openIm(mp_image,
                     p_appSettings->getISIOdmImName().c_str());
-    if (ret == IMAGESTREAMIO_SUCCESS)
-    {   // Success. Check compatibility.
-        if (mp_image->md->nelement == p_appSettings->getDmActuatorCount()
-            && mp_image->md->datatype == _DATATYPE_FLOAT)
-        {
-            std::cout
-                << "ImageStreamMamager: image successfully opened."
-                << std::endl;
-            return true;
-        }
+        if (ret == 0)
+            success = true;
         else
         {
-            std::cout
-                << "ImageStreamMamager: image opened, but has wrong size or datatype:"
-                << std::endl;
-            std::cout << "\t nelement is " << mp_image->md->nelement
-                << " and should be " << p_appSettings->getDmActuatorCount()
-                << "." << std::endl;
-            std::cout << "\t datatype is " << (int) mp_image->md->datatype
-                << "and should be " << (int) _DATATYPE_FLOAT
-                << " (float)." << std::endl;
-            return false;
+            std::cout << "Opening image failed, retry in a second ...\n";
+            sleep(1);
         }
+    }
+    // Check compatibility.
+    if (mp_image->md->nelement == p_appSettings->getDmActuatorCount()
+        && mp_image->md->datatype == _DATATYPE_FLOAT)
+    {
+        std::cout
+            << "ImageStreamMamager: image successfully opened."
+            << std::endl;
+        return true;
     }
     else
     {
         std::cout
-                << "ImageStreamMamager: failed to open image. "
-                << "Creating new image."
-                << std::endl;
-        int naxis = 1;
-        uint32_t * imsize = new uint32_t[naxis]();
-        imsize[0] = p_appSettings->getDmActuatorCount();
-        uint8_t atype = _DATATYPE_FLOAT;
-        int shared = 1; // image will be in shared memory
-        int NBkw = 0; // No keywords
-        int circBufSize = 0;
-        ret = ImageStreamIO_createIm_gpu(mp_image,
-                                p_appSettings->getISIOdmImName().c_str(),
-                                naxis,
-                                imsize,
-                                atype,
-                                -1, // -1 = Host, >=0 = device
-                                shared,
-                                10,
-                                NBkw,
-                                MATH_DATA,
-                                circBufSize);
-        delete[] imsize;
-        if (ret != IMAGESTREAMIO_SUCCESS)
-        {
-            std::cout
-                << "ImageStreamMamager: failed to create image."
-                << std::endl;
-            delete mp_image;
-            return false;
-        }
-        else
-        {
-            std::cout
-                << "ImageStreamMamager: image successfully created."
-                << std::endl;
-            m_semaphoreIndex =
-                ImageStreamIO_getsemwaitindex(mp_image, m_semaphoreIndex);
-            return true;
-        }
+            << "ImageStreamMamager: image opened, but has wrong size or datatype:"
+            << std::endl;
+        std::cout << "\t nelement is " << mp_image->md->nelement
+            << " and should be " << p_appSettings->getDmActuatorCount()
+            << "." << std::endl;
+        std::cout << "\t datatype is " << (int) mp_image->md->datatype
+            << "and should be " << (int) _DATATYPE_FLOAT
+            << " (float)." << std::endl;
+        return false;
     }
 }
 
