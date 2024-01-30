@@ -93,6 +93,9 @@ bool DMController::initialize(
     // Set framerate cap
     setFrameRateCap(p_appSettings->getDmFrameRateCap_Hz());
 
+    // Apply DC offset
+    setDCoffset(p_appSettings->getDMDCoffset());
+
     return true;
 }
 
@@ -172,7 +175,7 @@ bool DMController::relaxDM()
     return true;
 }
 
-bool DMController::setCDoffset(double dcOff)
+bool DMController::setDCoffset(double dcOff)
 {
     if (dcOff != m_dcOffset)
     {

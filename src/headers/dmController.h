@@ -22,7 +22,7 @@ public:
     bool setActuatorValues(double* values);
     bool setActuatorValues(float* values);
     bool relaxDM();
-    bool setCDoffset(double dcOffset);
+    bool setDCoffset(double dcOffset);
     // Performs a given number of pokes in quick succession and the duration
     int64_t stressTest(int numPokes);
 

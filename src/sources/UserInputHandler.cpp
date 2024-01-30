@@ -281,7 +281,7 @@ void UserInputHandler::execCmdDCoffset(std::vector<std::string> args)
     else
     {
         float dcOff = stof(args.at(1));
-        mp_DMController->setCDoffset(dcOff);
+        mp_DMController->setDCoffset(dcOff);
         // Print a completion notification
         std::stringstream ss;
         ss  << "DC offset of " << dcOff << " applied.";

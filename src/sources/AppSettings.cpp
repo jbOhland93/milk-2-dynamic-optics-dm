@@ -26,6 +26,7 @@ AppSettings::AppSettings(const std::string& filepath)
                 else if (key == "actuatorVoltageUpper") m_dmVUpper = std::stod(value);
                 else if (key == "actuatorVoltageLower") m_dmVLower = std::stod(value);
                 else if (key == "actuatorVoltageCenter") m_dmVCenter = std::stod(value);
+                else if (key == "actuatorDCoffset") m_dmDCoffset = std::stod(value);
                 else if (key == "framerateCap_Hz") m_dmFPScap_Hz = std::stof(value);
                 else if (key == "DMcombStream") m_dmImName = value;
                 else if (key == "CPUcore") m_cpuCore = std::stoi(value);

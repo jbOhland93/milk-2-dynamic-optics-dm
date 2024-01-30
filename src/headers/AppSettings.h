@@ -15,6 +15,7 @@ public:
     double getDmVoltageUpper() const { return m_dmVUpper; }
     double getDmVoltageLower() const { return m_dmVLower; }
     double getDmVoltageCenter() const { return m_dmVCenter; }
+    double getDMDCoffset() const { return m_dmDCoffset; }
     float getDmFrameRateCap_Hz() const { return m_dmFPScap_Hz; }
     std::string getISIOdmImName() const { return m_dmImName; }
     int getCPUcore() const { return m_cpuCore; }
@@ -28,6 +29,7 @@ private:
     double m_dmVUpper = 1.0;
     double m_dmVLower = -1.0;
     double m_dmVCenter = 0;
+    double m_dmDCoffset = 0;
     float m_dmFPScap_Hz = 500.;
     std::string m_dmImName = "unset";
     int m_cpuCore = -1;
