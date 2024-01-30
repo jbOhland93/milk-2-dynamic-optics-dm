@@ -125,24 +125,24 @@ bool DMController::setActuatorValues(double *values)
             m_lastFrame = currentTime;
     }
 
-    int retval;
+    // Determine the actual values that will be sent to the DM
+    double* newValues = values;
     if (m_applyDCoffset)
     {   // Apply the DC offset and set the values afterwards
         for (int i = 0; i < m_dmSettings.actuators; i++)
             mp_offsetBufferArr[i] = values[i] + m_dcOffset;
-        retval = setValues(mp_driverInstance, mp_offsetBufferArr, m_dmSettings.actuators);
+        newValues = mp_offsetBufferArr;
     }
-    else
-    {   // Set the values to the DM
-        retval = setValues(mp_driverInstance, values, m_dmSettings.actuators);
-    }
+    
+    // Set the values to the DM
+    int retval = setValues(mp_driverInstance, newValues, m_dmSettings.actuators);
 
     // Copy the values to the output image
     if (mp_outputImage != nullptr)
     {
         double* dst = (double*) ImageStreamIO_get_image_d_ptr(mp_outputImage);
         for (int i = 0; i < m_dmSettings.actuators; i++)
-            dst[i] = values[i];
+            dst[i] = newValues[i];
         ImageStreamIO_UpdateIm(mp_outputImage);
     }
     
