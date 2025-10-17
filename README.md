@@ -12,7 +12,9 @@ https://github.com/milk-org/milk
 **Requirements:**
 - Linux OS - tested on Ubuntu 20.04.6 LTS
 - g++ installed - c++ compiler
-- Dynamic Optics "PztMulti" API
+- Dynamic Optics "PztMulti" API:
+    - Place the PztMultiInterface.h file in /bin/include
+    - Place the libPztMulti.so file in /bin/lib
 - ImageStreamIO (shipped with milk)
 
 | Terminal Command | Description |
